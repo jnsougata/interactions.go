@@ -1,6 +1,10 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"encoding/json"
+
+	"github.com/gin-gonic/gin"
+)
 
 type InteractionData struct {
 	Id            string `json:"id"`
@@ -35,6 +39,16 @@ type Interaction struct {
 	Locale         string          `json:"locale"`
 	GuildLocale    string          `json:"guild_locale"`
 	Entitlements   any             `json:"entitlements"`
+}
+
+func (i *Interaction) Bind(v any) {
+	options := map[string]any{}
+	for _, option := range i.Data.Options.([]interface{}) {
+		om := option.(map[string]any)
+		options[om["name"].(string)] = om["value"]
+	}
+	ob, _ := json.Marshal(options)
+	_ = json.Unmarshal(ob, v)
 }
 
 func (i *Interaction) SendMessage(message SendingPayload) {

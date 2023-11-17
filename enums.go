@@ -3,6 +3,7 @@ package main
 type InteractionType int
 type InteractionCallbackType int
 type ApplicationCommandType int
+type ApplicationCommandOptionType int
 
 const (
 	InteractionTypePing InteractionType = 1
@@ -40,4 +41,28 @@ const (
 	ApplicationCommandTypeUser ApplicationCommandType = 2
 
 	ApplicationCommandTypeMessage ApplicationCommandType = 3
+)
+
+const (
+	ApplicationCommandOptionTypeSubCommand ApplicationCommandOptionType = 1
+
+	ApplicationCommandOptionTypeSubCommandGroup ApplicationCommandOptionType = 2
+
+	ApplicationCommandOptionTypeString ApplicationCommandOptionType = 3
+
+	ApplicationCommandOptionTypeInteger ApplicationCommandOptionType = 4
+
+	ApplicationCommandOptionTypeBoolean ApplicationCommandOptionType = 5
+
+	ApplicationCommandOptionTypeUser ApplicationCommandOptionType = 6
+
+	ApplicationCommandOptionTypeChannel ApplicationCommandOptionType = 7
+
+	ApplicationCommandOptionTypeRole ApplicationCommandOptionType = 8
+
+	ApplicationCommandOptionTypeMentionable ApplicationCommandOptionType = 9
+
+	ApplicationCommandOptionTypeNumber ApplicationCommandOptionType = 10
+
+	ApplicationCommandOptionTypeAttachment ApplicationCommandOptionType = 11
 )
