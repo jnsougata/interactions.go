@@ -37,6 +37,21 @@ type Interaction struct {
 	Entitlements   any             `json:"entitlements"`
 }
 
-func (i *Interaction) Send(v any) {
-	i.App.http.SendInteractionCallback(i.Id, i.Token, v)
+func (i *Interaction) SendMessage(message SendingPayload) {
+	i.App.http.SendInteractionCallback(i, InteractionCallbackTypeChannelMessageWithSource, message)
+}
+
+func (i *Interaction) Defer(ephemral bool) {
+	var payload SendingPayload
+	var kind InteractionCallbackType
+	if i.Type == InteractionTypeApplicationCommand {
+		kind = InteractionCallbackTypeDeferredChannelMessageWithSource
+		if ephemral {
+			payload.Flags = 64
+		}
+	} else {
+		kind = InteractionCallbackTypeDeferredMessageUpdate
+	}
+
+	i.App.http.SendInteractionCallback(i, kind, payload)
 }
