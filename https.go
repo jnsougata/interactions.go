@@ -33,7 +33,6 @@ func FormData(data any, files []File) ([]byte, string) {
 	return buffer.Bytes(), writer.Boundary()
 }
 
-
 type RequestOptions struct {
 	Method    string
 	Path      string
@@ -82,16 +81,27 @@ func (c *HttpClient) sync(commands []ApplicationCommand) (*http.Response, error)
 func (c *HttpClient) SendInteractionCallback(
 	interaction *Interaction,
 	kind InteractionCallbackType,
-	payload SendingPayload,
+	payload MessageOptions,
 ) (*http.Response, error) {
 	f := map[string]interface{}{"type": int(kind), "data": payload}
 	data, boundary := FormData(f, payload.Attchments)
 	return c.Request(RequestOptions{
 		Method:    http.MethodPost,
 		Path:      fmt.Sprintf("/interactions/%s/%s/callback", interaction.Id, interaction.Token),
-		Authorize: true,
+		Authorize: false,
 		Body:      bytes.NewReader(data),
 		Boundary:  boundary,
+	})
+}
+
+func (c *HttpClient) SendInteractionFollowup(interaction *Interaction, payload MessageOptions) (*http.Response, error) {
+	data, bounday := FormData(payload, payload.Attchments)
+	return c.Request(RequestOptions{
+		Method:    http.MethodPost,
+		Path:      fmt.Sprintf("/webhooks/%s/%s", c.state.ApplicationId, interaction.Token),
+		Authorize: false,
+		Body:      bytes.NewReader(data),
+		Boundary:  bounday,
 	})
 }
 

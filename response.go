@@ -1,6 +1,6 @@
 package main
 
-type SendingPayload struct {
+type MessageOptions struct {
 	TTS             bool    `json:"tts,omitempty"`
 	Content         string  `json:"content,omitempty"`
 	Embeds          []Embed `json:"embeds,omitempty"`

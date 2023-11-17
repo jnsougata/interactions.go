@@ -1,7 +1,7 @@
 # interactions.go
 Discord HTTP Interaction Handler for Serverless Applications
 
-## WIP
+## Work In Progress
 
 ### Quick Start
 ```go
@@ -25,49 +25,33 @@ func main() {
 			ApplicationId: "...",
 			ReleaseMode:   gin.ReleaseMode,
 		})
-	app.AddCommands(randint)
+	app.AddCommands(echo)
 	if err := app.Run(); err != nil {
 		log.Fatal(fmt.Errorf("failed to run app: %w", err))
 	}
 }
 
-var randint = ApplicationCommand{
-	Name:        "randint",
+var echo = ApplicationCommand{
+	Name:        "echo",
 	Type:        ApplicationCommandTypeChatInput,
-	Description: "Get a random integer",
+	Description: "Echoes a message",
 	Options: []Option{
 		{
-			Name:        "min",
-			Description: "The minimum value",
-			Type:        ApplicationCommandOptionTypeInteger,
-			Required:    true,
-		},
-		{
-			Name:        "max",
-			Description: "The maximum value",
-			Type:        ApplicationCommandOptionTypeInteger,
+			Name:        "message",
+			Description: "The message to echo",
+			Type:        ApplicationCommandOptionTypeString,
 			Required:    true,
 		},
 	},
 	Handler: func(interaction *Interaction) {
 		var options struct {
-			Max int `json:"max"`
-			Min int `json:"min"`
+			Message string `json:"message"`
 		}
 		interaction.Bind(&options)
-		if options.Max < options.Min {
-			interaction.SendMessage(SendingPayload{
-				Content: "Max must be greater than min",
-			})
-			return
-		}
 		embed := Embed{
-			Description: fmt.Sprintf("```\n%d\n```", options.Min+rand.Intn(options.Max-options.Min+1)),
+			Description: fmt.Sprintf("```\n%s\n```", options.Message),
 		}
-		interaction.SendMessage(SendingPayload{
-			Embeds: []Embed{embed},
-		})
+		interaction.Respond(MessageOptions{Embeds: []Embed{embed}})
 	},
 }
-
 ```

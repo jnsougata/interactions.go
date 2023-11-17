@@ -51,16 +51,20 @@ func (i *Interaction) Bind(v any) {
 	_ = json.Unmarshal(ob, v)
 }
 
-func (i *Interaction) SendMessage(message SendingPayload) {
+func (i *Interaction) Respond(message MessageOptions) {
 	i.App.http.SendInteractionCallback(i, InteractionCallbackTypeChannelMessageWithSource, message)
 }
 
-func (i *Interaction) Defer(ephemral bool) {
-	var payload SendingPayload
+func (i *Interaction) FollowUp(message MessageOptions) {
+	i.App.http.SendInteractionFollowup(i, message)
+}
+
+func (i *Interaction) Defer(ephemral ...bool) {
+	var payload MessageOptions
 	var kind InteractionCallbackType
 	if i.Type == InteractionTypeApplicationCommand {
 		kind = InteractionCallbackTypeDeferredChannelMessageWithSource
-		if ephemral {
+		if len(ephemral) > 0 && ephemral[0] {
 			payload.Flags = 64
 		}
 	} else {
