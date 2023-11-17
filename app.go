@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,15 +33,8 @@ func (a *app) Run() error {
 	return a.Engine.Run(PORT)
 }
 
-func (a *app) Sync() {
-	resp, err := a.http.Sync(a.commands)
-	if err != nil {
-		panic(err)
-	}
-	body, _ := io.ReadAll(resp.Body)
-	resp.Body.Close()
-	fmt.Println(resp.StatusCode)
-	fmt.Println(string(body))
+func (a *app) Sync() (*http.Response, error) {
+	return a.http.sync(a.commands)
 }
 
 func (a *app) AddCommands(commands ...ApplicationCommand) {

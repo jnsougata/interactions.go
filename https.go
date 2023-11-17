@@ -36,11 +36,11 @@ func (c *HttpClient) Request(
 	return http.DefaultClient.Do(req)
 }
 
-func (c *HttpClient) Sync(commands []ApplicationCommand) (*http.Response, error) {
+func (c *HttpClient) sync(commands []ApplicationCommand) (*http.Response, error) {
 	return c.Request(
-		http.MethodPut, 
-		fmt.Sprintf("/applications/%s/commands", c.state.ApplicationId), 
-		true, ReaderFromAny(commands), 	nil)
+		http.MethodPut,
+		fmt.Sprintf("/applications/%s/commands", c.state.ApplicationId),
+		true, ReaderFromAny(commands), nil)
 }
 
 func NewHttpClient(state *AppState) *HttpClient {
