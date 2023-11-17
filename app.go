@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +14,8 @@ type AppState struct {
 	PublicKey     string
 	ApplicationId string
 	ReleaseMode   string
+	commands      []ApplicationCommand
+	handlerMap    map[string]func(interaction *Interaction)
 }
 
 type app struct {
@@ -21,16 +24,35 @@ type app struct {
 	http   *HttpClient
 }
 
-func (state *app) Run() error {
-	state.Engine.POST(state.Path, func(c *gin.Context) { handler(c, state) })
+func (a *app) Run() error {
+	a.Engine.POST(a.Path, func(c *gin.Context) { handler(c, a) })
 	var PORT = ":8080"
-	if state.Port != 0 {
-		PORT = fmt.Sprintf(":%d", state.Port)
+	if a.Port != 0 {
+		PORT = fmt.Sprintf(":%d", a.Port)
 	}
-	return state.Engine.Run(PORT)
+	return a.Engine.Run(PORT)
+}
+
+func (a *app) Sync() {
+	resp, err := a.http.Sync(a.commands)
+	if err != nil {
+		panic(err)
+	}
+	body, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	fmt.Println(resp.StatusCode)
+	fmt.Println(string(body))
+}
+
+func (a *app) AddCommands(commands ...ApplicationCommand) {
+	for _, command := range commands {
+		a.handlerMap[fmt.Sprintf("%s:%d", command.Name, command.Type)] = command.Handler
+	}
+	a.commands = append(a.commands, commands...)
 }
 
 func App(state *AppState) *app {
 	gin.SetMode(state.ReleaseMode)
+	state.handlerMap = map[string]func(interaction *Interaction){}
 	return &app{*state, gin.Default(), NewHttpClient(state)}
 }

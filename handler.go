@@ -4,6 +4,7 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"github.com/gin-gonic/gin"
@@ -28,11 +29,19 @@ func handler(c *gin.Context, state *app) {
 	}
 
 	var interaction Interaction
+	interaction.App = state
+	interaction.Context = c
 	_ = json.Unmarshal(body, &interaction)
 
 	switch interaction.Type {
 	case InteractionTypePing:
 		c.JSON(200, gin.H{"type": 1})
+	case InteractionTypeApplicationCommand:
+		data := interaction.Data.(map[string]interface{})
+		name := data["name"].(string)
+		kind := data["type"].(float64)
+		key := fmt.Sprintf("%s:%f", name, kind)
+		state.handlerMap[key](&interaction)
 	default:
 		c.JSON(200, gin.H{"type": 1})
 	}

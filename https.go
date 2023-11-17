@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -12,26 +13,34 @@ type HttpClient struct {
 	state *AppState
 }
 
-func (h *HttpClient) Request(
+func (c *HttpClient) Request(
 	method, path string,
-	auth bool,
+	authorize bool,
 	body io.Reader,
 	kwargs map[string]interface{},
 ) (*http.Response, error) {
 	url := DISCORD_API_BASE_URL + path
-	req, err := http.NewRequest(method, url, nil)
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if auth {
-		req.Header.Set("Authorization", "Bot "+h.state.DiscordToken)
+	if authorize {
+		req.Header.Set("Authorization", "Bot "+c.state.DiscordToken)
 	}
-	reason, ok := kwargs["reason"]
-	if ok {
-		req.Header.Set("X-Audit-Log-Reason", reason.(string))
+	if kwargs != nil {
+		if reason, ok := kwargs["reason"]; ok {
+			req.Header.Set("X-Audit-Log-Reason", reason.(string))
+		}
 	}
 	return http.DefaultClient.Do(req)
+}
+
+func (c *HttpClient) Sync(commands []ApplicationCommand) (*http.Response, error) {
+	return c.Request(
+		http.MethodPut, 
+		fmt.Sprintf("/applications/%s/commands", c.state.ApplicationId), 
+		true, ReaderFromAny(commands), 	nil)
 }
 
 func NewHttpClient(state *AppState) *HttpClient {
