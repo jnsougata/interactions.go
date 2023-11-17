@@ -1,11 +1,13 @@
 v: 0
 micros:
   - name: backend
+    public: true
     src: ./
     engine: custom
     primary: true
     commands:
-      - go build -o server
+      - go get .
+      - go build -o app
     include:
-      - server
-    run: ./server
+      - app
+    run: ./app
