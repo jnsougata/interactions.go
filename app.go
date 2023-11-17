@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,15 +15,22 @@ type AppState struct {
 	ReleaseMode   string
 }
 
-type app struct{ AppState }
+type app struct {
+	AppState
+	Engine *gin.Engine
+	http   *HttpClient
+}
 
 func (state *app) Run() error {
-	gin.SetMode(state.ReleaseMode)
-	app := gin.Default()
-	app.POST(state.Path, func(c *gin.Context) { handler(c, state) })
-	return app.Run()
+	state.Engine.POST(state.Path, func(c *gin.Context) { handler(c, state) })
+	var PORT = ":8080"
+	if state.Port != 0 {
+		PORT = fmt.Sprintf(":%d", state.Port)
+	}
+	return state.Engine.Run(PORT)
 }
 
 func App(state *AppState) *app {
-	return &app{*state}
+	gin.SetMode(state.ReleaseMode)
+	return &app{*state, gin.Default(), NewHttpClient(state)}
 }
