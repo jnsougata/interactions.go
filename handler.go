@@ -27,23 +27,17 @@ func handler(c *gin.Context, state *app) {
 		c.JSON(401, gin.H{"message": "Unauthorized"})
 		return
 	}
-
 	var interaction Interaction
 	interaction.App = state
 	interaction.Context = c
 	_ = json.Unmarshal(body, &interaction)
-
 	switch interaction.Type {
 	case InteractionTypePing:
 		c.JSON(200, gin.H{"type": 1})
 	case InteractionTypeApplicationCommand:
-		data := interaction.Data.(map[string]interface{})
-		name := data["name"].(string)
-		kind := data["type"].(float64)
-		key := fmt.Sprintf("%s:%f", name, kind)
-		state.handlerMap[key](&interaction)
+		key := fmt.Sprintf("%s:%d", interaction.Data.Name, interaction.Data.Type)
+		globalHandlerMap[key](&interaction)
 	default:
 		c.JSON(200, gin.H{"type": 1})
 	}
-
 }

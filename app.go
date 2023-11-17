@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var globalHandlerMap = make(map[string]func(interaction *Interaction))
+
 type AppState struct {
 	Port          int
 	Path          string
@@ -15,7 +17,6 @@ type AppState struct {
 	ApplicationId string
 	ReleaseMode   string
 	commands      []ApplicationCommand
-	handlerMap    map[string]func(interaction *Interaction)
 }
 
 type app struct {
@@ -39,13 +40,12 @@ func (a *app) Sync() (*http.Response, error) {
 
 func (a *app) AddCommands(commands ...ApplicationCommand) {
 	for _, command := range commands {
-		a.handlerMap[fmt.Sprintf("%s:%d", command.Name, command.Type)] = command.Handler
+		globalHandlerMap[fmt.Sprintf("%s:%d", command.Name, command.Type)] = command.Handler
 	}
 	a.commands = append(a.commands, commands...)
 }
 
 func App(state *AppState) *app {
 	gin.SetMode(state.ReleaseMode)
-	state.handlerMap = map[string]func(interaction *Interaction){}
 	return &app{*state, gin.Default(), NewHttpClient(state)}
 }

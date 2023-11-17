@@ -43,6 +43,16 @@ func (c *HttpClient) sync(commands []ApplicationCommand) (*http.Response, error)
 		true, ReaderFromAny(commands), nil)
 }
 
+func (c *HttpClient) SendInteractionCallback(
+	interactionId, interactionToken string,
+	data any,
+) (*http.Response, error) {
+	return c.Request(
+		http.MethodPost,
+		fmt.Sprintf("/interactions/%s/%s/callback", interactionId, interactionToken),
+		false, ReaderFromAny(data), nil)
+}
+
 func NewHttpClient(state *AppState) *HttpClient {
 	return &HttpClient{state}
 }
