@@ -42,7 +42,7 @@ type Interaction struct {
 	User           any             `json:"user"`
 	Token          string          `json:"token"`
 	Version        int             `json:"version"`
-	Message        *Message        `json:"message"`
+	Message        Message         `json:"message"`
 	AppPermissions string          `json:"app_permissions"`
 	Locale         string          `json:"locale"`
 	GuildLocale    string          `json:"guild_locale"`
@@ -52,8 +52,36 @@ type Interaction struct {
 func (i *Interaction) Bind(v any) {
 	options := map[string]any{}
 	for _, option := range i.Data.Options.([]interface{}) {
-		om := option.(map[string]any)
-		options[om["name"].(string)] = om["value"]
+		var o Option
+		b, _ := json.Marshal(option)
+		_ = json.Unmarshal(b, &o)
+		switch o.Type {
+		case ApplicationCommandOptionTypeSubCommand:
+		case ApplicationCommandOptionTypeSubCommandGroup:
+		case ApplicationCommandOptionTypeString:
+			options[o.Name] = o.Value.(string)
+		case ApplicationCommandOptionTypeInteger:
+			options[o.Name] = int(o.Value.(float64))
+		case ApplicationCommandOptionTypeBoolean:
+			options[o.Name] = o.Value.(bool)
+		case ApplicationCommandOptionTypeUser:
+			options[o.Name] = i.Data.Resolved.Users[o.Value.(string)]
+		case ApplicationCommandOptionTypeChannel:
+			options[o.Name] = i.Data.Resolved.Channels[o.Value.(string)]
+		case ApplicationCommandOptionTypeRole:
+			options[o.Name] = i.Data.Resolved.Roles[o.Value.(string)]
+		case ApplicationCommandOptionTypeMentionable:
+			user, ok := i.Data.Resolved.Users[o.Value.(string)]
+			if ok {
+				options[o.Name] = user
+			} else {
+				options[o.Name] = i.Data.Resolved.Roles[o.Value.(string)]
+			}
+		case ApplicationCommandOptionTypeNumber:
+			options[o.Name] = o.Value.(float64)
+		case ApplicationCommandOptionTypeAttachment:
+			options[o.Name] = i.Data.Resolved.Attachments[o.Value.(string)]
+		}
 	}
 	ob, _ := json.Marshal(options)
 	_ = json.Unmarshal(ob, v)

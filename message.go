@@ -1,16 +1,24 @@
 package main
 
+type MessageInteraction struct {
+	Id     string `json:"id"`
+	Type   int    `json:"type"`
+	Name   string `json:"name"`
+	User   User   `json:"user"`
+	Memebr Memebr `json:"member"`
+}
+
 type Message struct {
-	Id              string   `json:"id"`
-	ChannelId       string   `json:"channel_id"`
-	Author          User     `json:"author"`
-	Content         string   `json:"content"`
-	Timestamp       string   `json:"timestamp"`
-	EditedTimestamp string   `json:"edited_timestamp"`
-	TTS             bool     `json:"tts"`
-	MentionEveryone bool     `json:"mention_everyone"`
-	Mentions        []User   `json:"mentions"`
-	MentionRoles    []Role   `json:"mention_roles"`
+	Id              string `json:"id"`
+	ChannelId       string `json:"channel_id"`
+	Author          User   `json:"author"`
+	Content         string `json:"content"`
+	Timestamp       string `json:"timestamp"`
+	EditedTimestamp string `json:"edited_timestamp"`
+	TTS             bool   `json:"tts"`
+	MentionEveryone bool   `json:"mention_everyone"`
+	Mentions        []User `json:"mentions"`
+	MentionRoles    []Role `json:"mention_roles"`
 	// MentionChannels []Channel `json:"mention_channels"`
 	// Attachments     []Attachment `json:"attachments"`
 	Embeds []Embed `json:"embeds"`
@@ -23,9 +31,9 @@ type Message struct {
 	Application   any    `json:"application"`
 	ApplicationId string `json:"application_id"`
 	// MessageReference  any         `json:"message_reference"`
-	Flags             int          `json:"flags"`
-	ReferencedMessage *Message     `json:"referenced_message"`
-	Interaction       *Interaction `json:"interaction"`
+	Flags             int                `json:"flags"`
+	ReferencedMessage *Message           `json:"referenced_message"`
+	Interaction       MessageInteraction `json:"interaction"`
 	// Thread            any         `json:"thread"`
 	Components []Component `json:"components"`
 	// StickerItems      []Sticker   `json:"sticker_items"`

@@ -51,7 +51,7 @@ var echo = ApplicationCommand{
 		embed := Embed{
 			Description: fmt.Sprintf("```\n%s\n```", options.Message),
 		}
-		interaction.Respond(MessageOptions{Embeds: []Embed{embed}})
+		interaction.Response(MessageOptions{Embeds: []Embed{embed}})
 	},
 }
 ```
