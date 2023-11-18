@@ -5,6 +5,7 @@ type InteractionCallbackType int
 type ApplicationCommandType int
 type ApplicationCommandOptionType int
 type ComponentType int
+type SelectType int
 type ButtonStyle int
 
 const (
@@ -85,6 +86,18 @@ const (
 	ComponentTypeMentionableSelect ComponentType = 7
 
 	ComponentTypeChannelSelect ComponentType = 8
+)
+
+const (
+	SelectTypeText SelectType = 3
+
+	SelectTypeUser SelectType = 5
+
+	SelectTypeRole SelectType = 6
+
+	SelectTypeMentionable SelectType = 7
+
+	SelectTypeChannel SelectType = 8
 )
 
 const (
