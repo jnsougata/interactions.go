@@ -45,6 +45,15 @@ func (a *app) AddCommands(commands ...ApplicationCommand) {
 	a.commands = append(a.commands, commands...)
 }
 
+func (a *app) PreloadComponents(components ...Component) {
+	for _, component := range components {
+		if component.CustomId == "" {
+			continue
+		}
+		globalHandlerMap[fmt.Sprintf("%s:%d", component.CustomId, component.Type)] = component.Handler
+	}
+}
+
 func App(state *AppState) *app {
 	gin.SetMode(state.ReleaseMode)
 	return &app{*state, gin.Default(), NewHttpClient(state)}

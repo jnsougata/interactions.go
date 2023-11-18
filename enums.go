@@ -4,6 +4,8 @@ type InteractionType int
 type InteractionCallbackType int
 type ApplicationCommandType int
 type ApplicationCommandOptionType int
+type ComponentType int
+type ButtonStyle int
 
 const (
 	InteractionTypePing InteractionType = 1
@@ -65,4 +67,34 @@ const (
 	ApplicationCommandOptionTypeNumber ApplicationCommandOptionType = 10
 
 	ApplicationCommandOptionTypeAttachment ApplicationCommandOptionType = 11
+)
+
+const (
+	ComponentTypeActionRow ComponentType = 1
+
+	ComponentTypeButton ComponentType = 2
+
+	ComponentTypeSelectMenu ComponentType = 3
+
+	ComponentTypeTextInput ComponentType = 4
+
+	ComponentTypeUserSelect ComponentType = 5
+
+	ComponentTypeRoleSelect ComponentType = 6
+
+	ComponentTypeMentionableSelect ComponentType = 7
+
+	ComponentTypeChannelSelect ComponentType = 8
+)
+
+const (
+	ButtonStylePrimary ButtonStyle = 1
+
+	ButtonStyleSecondary ButtonStyle = 2
+
+	ButtonStyleSuccess ButtonStyle = 3
+
+	ButtonStyleDanger ButtonStyle = 4
+
+	ButtonStyleLink ButtonStyle = 5
 )
