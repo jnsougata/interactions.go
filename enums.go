@@ -7,6 +7,8 @@ type ApplicationCommandOptionType int
 type ComponentType int
 type SelectType int
 type ButtonStyle int
+type ChannelType int
+type DefaultValueType string
 
 const (
 	InteractionTypePing InteractionType = 1
@@ -27,7 +29,7 @@ const (
 
 	InteractionCallbackTypeDeferredChannelMessageWithSource InteractionCallbackType = 5
 
-	InteractionCallbackTypeDeferredMessageUpdate InteractionCallbackType = 6
+	InteractionCallbackTypeDeferredUpdateMessage InteractionCallbackType = 6
 
 	InteractionCallbackTypeUpdateMessage InteractionCallbackType = 7
 
@@ -110,4 +112,40 @@ const (
 	ButtonStyleDanger ButtonStyle = 4
 
 	ButtonStyleLink ButtonStyle = 5
+)
+
+const (
+	ChannelTypeGuildText ChannelType = 0
+
+	ChannelTypeDm ChannelType = 1
+
+	ChannelTypeGuildVoice ChannelType = 2
+
+	ChannelTypeGroupDm ChannelType = 3
+
+	ChannelTypeGuildCategory ChannelType = 4
+
+	ChannelTypeGuildAnnouncement ChannelType = 5
+
+	ChannelTypeGuildAnnouncementThread ChannelType = 10
+
+	ChannelTypeGuildPublicThread ChannelType = 11
+
+	ChannelTypeGuildPrivateThread ChannelType = 12
+
+	ChannelTypeGuildStageVoice ChannelType = 13
+
+	ChannelTypeGuildDirectory ChannelType = 14
+
+	ChannelTypeGuildForum ChannelType = 15
+
+	ChannelTypeGuildMedia ChannelType = 16
+)
+
+const (
+	DefaultValueTypeUser DefaultValueType = "user"
+
+	DefaultValueTypeRole DefaultValueType = "role"
+
+	DefaultValueTypeChannel DefaultValueType = "channel"
 )

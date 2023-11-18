@@ -78,6 +78,14 @@ func (c *HttpClient) sync(commands []ApplicationCommand) (*http.Response, error)
 		})
 }
 
+func (c *HttpClient) DeleteMessage(messageId, channelId string) (*http.Response, error) {
+	return c.Request(RequestOptions{
+		Method:    http.MethodDelete,
+		Path:      fmt.Sprintf("/channels/%s/messages/%s", channelId, messageId),
+		Authorize: true,
+	})
+}
+
 func (c *HttpClient) SendInteractionCallback(
 	interaction *Interaction,
 	kind InteractionCallbackType,
@@ -102,6 +110,33 @@ func (c *HttpClient) SendInteractionFollowup(interaction *Interaction, payload M
 		Authorize: false,
 		Body:      bytes.NewReader(data),
 		Boundary:  bounday,
+	})
+}
+
+func (c *HttpClient) GetOriginalInteractionResponse(interaction *Interaction) (*http.Response, error) {
+	return c.Request(RequestOptions{
+		Method:    http.MethodGet,
+		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.state.ApplicationId, interaction.Token),
+		Authorize: false,
+	})
+}
+
+func (c *HttpClient) EditOriginalInteractionResponse(interaction *Interaction, payload MessageOptions) (*http.Response, error) {
+	data, bounday := FormData(payload, payload.Attchments)
+	return c.Request(RequestOptions{
+		Method:    http.MethodPatch,
+		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.state.ApplicationId, interaction.Token),
+		Authorize: false,
+		Body:      bytes.NewReader(data),
+		Boundary:  bounday,
+	})
+}
+
+func (c *HttpClient) DeleteOriginalInteractionResponse(interaction *Interaction) (*http.Response, error) {
+	return c.Request(RequestOptions{
+		Method:    http.MethodDelete,
+		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.state.ApplicationId, interaction.Token),
+		Authorize: false,
 	})
 }
 

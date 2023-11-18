@@ -5,6 +5,23 @@ type ActionRow struct {
 	Components []Component   `json:"components"`
 }
 
+type SelectOption struct {
+	Label       string `json:"label"`
+	Value       string `json:"value"`
+	Description string `json:"description,omitempty"`
+	Emoji       struct {
+		Name     string `json:"name,omitempty"`
+		Id       string `json:"id,omitempty"`
+		Animated bool   `json:"animated,omitempty"`
+	} `json:"emoji,omitempty"`
+	Default bool `json:"default,omitempty"`
+}
+
+type DefaultValue struct {
+	Id   string           `json:"id"`
+	Type DefaultValueType `json:"type"`
+}
+
 type Component struct {
 	CustomId string        `json:"custom_id,omitempty"`
 	Type     ComponentType `json:"type"`
@@ -16,10 +33,10 @@ type Component struct {
 		Animated bool   `json:"animated,omitempty"`
 	} `json:"emoji,omitempty"`
 	URL           string                         `json:"url,omitempty"`
-	Options       []interface{}                  `json:"options,omitempty"`
-	ChannelTypes  []int                          `json:"channel_types,omitempty"`
+	Options       []SelectOption                 `json:"options,omitempty"`
+	ChannelTypes  []ChannelType                  `json:"channel_types,omitempty"`
 	Placeholder   string                         `json:"placeholder,omitempty"`
-	DefaultValues []interface{}                  `json:"default_values,omitempty"`
+	DefaultValues []DefaultValue                 `json:"default_values,omitempty"`
 	MinValues     int                            `json:"min_values,omitempty"`
 	MaxValues     int                            `json:"max_values,omitempty"`
 	Disabled      bool                           `json:"disabled,omitempty"`
@@ -56,8 +73,9 @@ func Button(config ButtonConfig) Component {
 type SelectConfig struct {
 	CustomId      string
 	Type          SelectType
-	Options       []interface{}
-	DefaultValues []interface{}
+	Options       []SelectOption
+	DefaultValues []DefaultValue
+	ChannelTypes  []ChannelType
 	Placeholder   string
 	MinValues     int
 	MaxValues     int
@@ -76,19 +94,6 @@ func Select(config SelectConfig) Component {
 		MaxValues:     config.MaxValues,
 		Disabled:      config.Disabled,
 		Handler:       config.Handler,
+		ChannelTypes:  config.ChannelTypes,
 	}
-}
-
-func (a *ActionRow) AddButtons(comps ...Component) {
-	if len(a.Components) >= 5 {
-		return
-	}
-	a.Components = append(a.Components, comps...)
-}
-
-func (a *ActionRow) AddSelect(comp Component) {
-	if len(a.Components) >= 1 {
-		return
-	}
-	a.Components = append(a.Components, comp)
 }

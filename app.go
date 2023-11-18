@@ -25,6 +25,10 @@ type app struct {
 	http   *HttpClient
 }
 
+func (a *app) DeleteMessage(messageId, channelId string) (*http.Response, error) {
+	return a.http.DeleteMessage(messageId, channelId)
+}
+
 func (a *app) Run() error {
 	a.Engine.POST(a.Path, func(c *gin.Context) { handler(c, a) })
 	var PORT = ":8080"
