@@ -78,7 +78,7 @@ const (
 
 	ComponentTypeButton ComponentType = 2
 
-	ComponentTypeSelectMenu ComponentType = 3
+	ComponentTypeTextSelect ComponentType = 3
 
 	ComponentTypeTextInput ComponentType = 4
 

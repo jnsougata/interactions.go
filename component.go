@@ -40,7 +40,7 @@ type Component struct {
 	Style    ButtonStyle   `json:"style,omitempty"`
 	Emoji    struct {
 		Name     string `json:"name,omitempty"`
-		ID       string `json:"id,omitempty"`
+		Id       string `json:"id,omitempty"`
 		Animated bool   `json:"animated,omitempty"`
 	} `json:"emoji,omitempty"`
 	URL           string                         `json:"url,omitempty"`
@@ -63,7 +63,7 @@ type ButtonConfig struct {
 	Style ButtonStyle
 	Emoji struct {
 		Name     string `json:"name,omitempty"`
-		ID       string `json:"id,omitempty"`
+		Id       string `json:"id,omitempty"`
 		Animated bool   `json:"animated,omitempty"`
 	}
 	CustomId string

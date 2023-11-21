@@ -40,11 +40,11 @@ type Embed struct {
 	Thumbnail   EmbedThumbnail `json:"thumbnail,omitempty"`
 	Image       EmbedImage     `json:"image,omitempty"`
 	Footer      EmbedFooter    `json:"footer,omitempty"`
-	Fileds      []EmbedField   `json:"fields,omitempty"`
+	Fields      []EmbedField   `json:"fields,omitempty"`
 }
 
 func (e *Embed) AppendField(name, value string, inline bool) {
-	e.Fileds = append(e.Fileds, EmbedField{
+	e.Fields = append(e.Fields, EmbedField{
 		Name:   name,
 		Value:  value,
 		Inline: inline,
