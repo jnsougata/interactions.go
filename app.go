@@ -49,13 +49,17 @@ func (a *app) AddCommands(commands ...ApplicationCommand) {
 	a.commands = append(a.commands, commands...)
 }
 
-func (a *app) PreloadComponents(components ...Component) {
-	for _, component := range components {
-		if component.CustomId == "" {
+func (a *app) PreloadComponents(comps ...Component) {
+	for _, comp := range comps {
+		if comp.CustomId == "" {
 			continue
 		}
-		globalHandlerMap[fmt.Sprintf("%s:%d", component.CustomId, component.Type)] = component.Handler
+		globalHandlerMap[fmt.Sprintf("%s:%d", comp.CustomId, comp.Type)] = comp.Handler
 	}
+}
+
+func (a *app) PreloadModal(m Modal) {
+	globalHandlerMap[m.CustomId] = m.Handler
 }
 
 func App(state *AppState) *app {

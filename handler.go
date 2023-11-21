@@ -40,6 +40,8 @@ func handler(c *gin.Context, state *app) {
 	case InteractionTypeMessageComponent:
 		key := fmt.Sprintf("%s:%d", interaction.Data.CustomId, interaction.Data.ComponentType)
 		globalHandlerMap[key](&interaction)
+	case InteractionTypeModalSubmit:
+		globalHandlerMap[interaction.Data.CustomId](&interaction)
 	default:
 		c.JSON(200, gin.H{"type": 1})
 	}

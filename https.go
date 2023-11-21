@@ -16,21 +16,21 @@ var DISCORD_API_BASE_URL = "https://discord.com/api/v" + DISCORD_API_VERSION
 
 var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
-func FormData(data any, files []File) ([]byte, string) {
-	var buffer bytes.Buffer
-	writer := multipart.NewWriter(&buffer)
+func FormData(data any, files []PartialAttachment) ([]byte, string) {
+	var buff bytes.Buffer
+	writer := multipart.NewWriter(&buff)
 	payload, _ := json.Marshal(data)
 	header := make(textproto.MIMEHeader)
 	header.Set("Content-Disposition", `form-data; name="payload_json"`)
 	header.Set("Content-Type", `application/json`)
 	field, _ := writer.CreatePart(header)
 	_, _ = field.Write(payload)
-	for i, f := range files {
-		ff, _ := writer.CreateFormFile(fmt.Sprintf(`files[%v]`, i), quoteEscaper.Replace(f.Name))
-		_, _ = ff.Write(f.Content)
+	for _, f := range files {
+		fw, _ := writer.CreateFormFile(fmt.Sprintf(`files[%s]`, f.Id), quoteEscaper.Replace(f.Filename))
+		_, _ = fw.Write(f.Content)
 	}
 	_ = writer.Close()
-	return buffer.Bytes(), writer.Boundary()
+	return buff.Bytes(), writer.Boundary()
 }
 
 type RequestOptions struct {
@@ -99,6 +99,20 @@ func (c *HttpClient) SendInteractionCallback(
 		Authorize: false,
 		Body:      bytes.NewReader(data),
 		Boundary:  boundary,
+	})
+}
+
+func (c *HttpClient) SendInteractionCallbackModal(
+	interaction *Interaction,
+	kind InteractionCallbackType,
+	modal Modal,
+) (*http.Response, error) {
+	payload := map[string]interface{}{"type": int(kind), "data": modal}
+	return c.Request(RequestOptions{
+		Method:    http.MethodPost,
+		Path:      fmt.Sprintf("/interactions/%s/%s/callback", interaction.Id, interaction.Token),
+		Authorize: false,
+		Body:      ReaderFromAny(payload),
 	})
 }
 

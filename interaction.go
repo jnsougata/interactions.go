@@ -24,6 +24,7 @@ type InteractionData struct {
 	TargetId      string                  `json:"target_id"`
 	CustomId      string                  `json:"custom_id"`
 	ComponentType int                     `json:"component_type"`
+	Components    []ActionRow             `json:"components"`
 	Values        []string                `json:"values"`
 	Resolved      InteractionDataResolved `json:"resolved"`
 }
@@ -38,8 +39,8 @@ type Interaction struct {
 	GuildId        string          `json:"guild_id"`
 	Channel        any             `json:"channel"`
 	ChannelId      string          `json:"channel_id"`
-	Member         any             `json:"member"`
-	User           any             `json:"user"`
+	Member         Memebr          `json:"member"`
+	User           User            `json:"user"`
 	Token          string          `json:"token"`
 	Version        int             `json:"version"`
 	Message        Message         `json:"message"`
@@ -50,41 +51,56 @@ type Interaction struct {
 }
 
 func (i *Interaction) Bind(v any) {
-	options := map[string]any{}
-	for _, option := range i.Data.Options.([]interface{}) {
-		var o Option
-		b, _ := json.Marshal(option)
-		_ = json.Unmarshal(b, &o)
-		switch o.Type {
-		case ApplicationCommandOptionTypeSubCommand:
-		case ApplicationCommandOptionTypeSubCommandGroup:
-		case ApplicationCommandOptionTypeString:
-			options[o.Name] = o.Value.(string)
-		case ApplicationCommandOptionTypeInteger:
-			options[o.Name] = int(o.Value.(float64))
-		case ApplicationCommandOptionTypeBoolean:
-			options[o.Name] = o.Value.(bool)
-		case ApplicationCommandOptionTypeUser:
-			options[o.Name] = i.Data.Resolved.Users[o.Value.(string)]
-		case ApplicationCommandOptionTypeChannel:
-			options[o.Name] = i.Data.Resolved.Channels[o.Value.(string)]
-		case ApplicationCommandOptionTypeRole:
-			options[o.Name] = i.Data.Resolved.Roles[o.Value.(string)]
-		case ApplicationCommandOptionTypeMentionable:
-			user, ok := i.Data.Resolved.Users[o.Value.(string)]
-			if ok {
-				options[o.Name] = user
-			} else {
+	switch i.Type {
+	case InteractionTypeApplicationCommand:
+		options := map[string]any{}
+		for _, option := range i.Data.Options.([]interface{}) {
+			var o Option
+			b, _ := json.Marshal(option)
+			_ = json.Unmarshal(b, &o)
+			switch o.Type {
+			case ApplicationCommandOptionTypeSubCommand:
+			case ApplicationCommandOptionTypeSubCommandGroup:
+			case ApplicationCommandOptionTypeString:
+				options[o.Name] = o.Value.(string)
+			case ApplicationCommandOptionTypeInteger:
+				options[o.Name] = int(o.Value.(float64))
+			case ApplicationCommandOptionTypeBoolean:
+				options[o.Name] = o.Value.(bool)
+			case ApplicationCommandOptionTypeUser:
+				options[o.Name] = i.Data.Resolved.Users[o.Value.(string)]
+			case ApplicationCommandOptionTypeChannel:
+				options[o.Name] = i.Data.Resolved.Channels[o.Value.(string)]
+			case ApplicationCommandOptionTypeRole:
 				options[o.Name] = i.Data.Resolved.Roles[o.Value.(string)]
+			case ApplicationCommandOptionTypeMentionable:
+				user, ok := i.Data.Resolved.Users[o.Value.(string)]
+				if ok {
+					options[o.Name] = user
+				} else {
+					options[o.Name] = i.Data.Resolved.Roles[o.Value.(string)]
+				}
+			case ApplicationCommandOptionTypeNumber:
+				options[o.Name] = o.Value.(float64)
+			case ApplicationCommandOptionTypeAttachment:
+				options[o.Name] = i.Data.Resolved.Attachments[o.Value.(string)]
 			}
-		case ApplicationCommandOptionTypeNumber:
-			options[o.Name] = o.Value.(float64)
-		case ApplicationCommandOptionTypeAttachment:
-			options[o.Name] = i.Data.Resolved.Attachments[o.Value.(string)]
 		}
+		ob, _ := json.Marshal(options)
+		_ = json.Unmarshal(ob, v)
+
+	case InteractionTypeMessageComponent:
+
+	case InteractionTypeModalSubmit:
+		fields := map[string]any{}
+		for _, row := range i.Data.Components {
+			for _, component := range row.Components {
+				fields[component.CustomId] = component.Value
+			}
+		}
+		ob, _ := json.Marshal(fields)
+		_ = json.Unmarshal(ob, v)
 	}
-	ob, _ := json.Marshal(options)
-	_ = json.Unmarshal(ob, v)
 }
 
 func (i *Interaction) Response(message MessageOptions) {
@@ -127,4 +143,8 @@ func (i *Interaction) DeleteOriginalResponse() {
 
 func (i *Interaction) UpdateComponentMessage(message MessageOptions) {
 	i.App.http.SendInteractionCallback(i, InteractionCallbackTypeUpdateMessage, message)
+}
+
+func (i *Interaction) SendModal(modal Modal) {
+	i.App.http.SendInteractionCallbackModal(i, InteractionCallbackTypeModal, modal)
 }

@@ -5,6 +5,17 @@ type ActionRow struct {
 	Components []Component   `json:"components"`
 }
 
+func Row(comps ...Component) ActionRow {
+	return ActionRow{
+		Type:       ComponentTypeActionRow,
+		Components: comps,
+	}
+}
+
+func Componenets(rows ...ActionRow) []ActionRow {
+	return rows
+}
+
 type SelectOption struct {
 	Label       string `json:"label"`
 	Value       string `json:"value"`
@@ -40,6 +51,10 @@ type Component struct {
 	MinValues     int                            `json:"min_values,omitempty"`
 	MaxValues     int                            `json:"max_values,omitempty"`
 	Disabled      bool                           `json:"disabled,omitempty"`
+	MinLength     int                            `json:"min_length,omitempty"`
+	MaxLength     int                            `json:"max_length,omitempty"`
+	Required      bool                           `json:"required,omitempty"`
+	Value         string                         `json:"value,omitempty"`
 	Handler       func(interaction *Interaction) `json:"-"`
 }
 

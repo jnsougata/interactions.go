@@ -9,6 +9,7 @@ type SelectType int
 type ButtonStyle int
 type ChannelType int
 type DefaultValueType string
+type TextInputStyle int
 
 const (
 	InteractionTypePing InteractionType = 1
@@ -148,4 +149,10 @@ const (
 	DefaultValueTypeRole DefaultValueType = "role"
 
 	DefaultValueTypeChannel DefaultValueType = "channel"
+)
+
+const (
+	TextInputStyleShort TextInputStyle = 1
+
+	TextInputStyleParagraph TextInputStyle = 2
 )
