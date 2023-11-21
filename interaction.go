@@ -135,8 +135,11 @@ func (i *Interaction) Response(message MessageOptions) {
 	i.App.http.SendInteractionCallback(i, InteractionCallbackTypeChannelMessageWithSource, message)
 }
 
-func (i *Interaction) FollowUp(message MessageOptions) {
-	i.App.http.SendInteractionFollowup(i, message)
+func (i *Interaction) FollowUp(message MessageOptions) Message {
+	resp, _ := i.App.http.SendInteractionFollowup(i, message)
+	var msg Message
+	_ = json.NewDecoder(resp.Body).Decode(&msg)
+	return msg
 }
 
 func (i *Interaction) Defer(ephemral ...bool) {
@@ -156,9 +159,9 @@ func (i *Interaction) Defer(ephemral ...bool) {
 
 func (i *Interaction) GetOriginalResponse() Message {
 	resp, _ := i.App.http.GetOriginalInteractionResponse(i)
-	var message Message
-	_ = json.NewDecoder(resp.Body).Decode(&message)
-	return message
+	var msg Message
+	_ = json.NewDecoder(resp.Body).Decode(&msg)
+	return msg
 }
 
 func (i *Interaction) EditOriginalResponse(message MessageOptions) {
