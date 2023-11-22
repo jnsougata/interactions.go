@@ -25,33 +25,45 @@ func main() {
 			ApplicationId: "...",
 			ReleaseMode:   gin.ReleaseMode,
 		})
+	app.PreloadComponents(deleteButton)
 	app.AddCommands(echo)
+	if os.Getenv("ENV") == "DEVEL" {
+		app.Sync()
+	}
 	if err := app.Run(); err != nil {
 		log.Fatal(fmt.Errorf("failed to run app: %w", err))
 	}
 }
 
-var echo = ApplicationCommand{
-	Name:        "echo",
-	Type:        ApplicationCommandTypeChatInput,
-	Description: "Echoes a message",
-	Options: []Option{
-		{
-			Name:        "message",
-			Description: "The message to echo",
-			Type:        ApplicationCommandOptionTypeString,
+var deleteButton = Button(ButtonConfig{
+	Label:    "Delete",
+	Style:    ButtonStyleDanger,
+	CustomId: "delete",
+	Handler: func(interaction *Interaction) {
+		interaction.Message.Delete(interaction.Client)
+	},
+})
+
+var echo = SlashCommand(
+	SlashCommandConfig{
+		Name:        "echo",
+		Description: "echoes your input",
+		Options: Options(StringOption(OptionConfigString{
+			Name:        "input",
+			Description: "The input to echo",
 			Required:    true,
+			MinLength:   3,
+		})),
+		Handler: func(interaction *Interaction) {
+			var options struct {
+				Input string `json:"input"`
+			}
+			interaction.Bind(&options)
+			interaction.Response(MessageOptions{
+				Content:    options.Input,
+				Components: Componenets(Row(deleteButton)),
+			})
 		},
 	},
-	Handler: func(interaction *Interaction) {
-		var options struct {
-			Message string `json:"message"`
-		}
-		interaction.Bind(&options)
-		embed := Embed{
-			Description: fmt.Sprintf("```\n%s\n```", options.Message),
-		}
-		interaction.Response(MessageOptions{Embeds: []Embed{embed}})
-	},
-}
+)
 ```

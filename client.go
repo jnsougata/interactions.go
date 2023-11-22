@@ -25,10 +25,6 @@ type Client struct {
 	Http   *HttpClient
 }
 
-func (c *Client) DeleteMessage(messageId, channelId string) (*http.Response, error) {
-	return c.Http.DeleteMessage(messageId, channelId)
-}
-
 func (c *Client) Run() error {
 	c.Engine.POST(c.Path, func(ctx *gin.Context) { handler(ctx, c) })
 	var PORT = ":8080"
