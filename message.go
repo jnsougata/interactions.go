@@ -1,5 +1,7 @@
 package main
 
+import "net/http"
+
 type MessageInteraction struct {
 	Id     string `json:"id"`
 	Type   int    `json:"type"`
@@ -41,4 +43,8 @@ type Message struct {
 	Position int `json:"position"`
 	// RoleSubscriptionData any `json:"role_subscription_data"`
 	Resolved InteractionDataResolved `json:"resolved"`
+}
+
+func (m *Message) Delete(c *Client) (*http.Response, error) {
+	return c.Http.DeleteMessage(m.Id, m.ChannelId)
 }

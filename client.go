@@ -19,37 +19,37 @@ type AppState struct {
 	commands      []ApplicationCommand
 }
 
-type app struct {
+type Client struct {
 	AppState
 	Engine *gin.Engine
-	http   *HttpClient
+	Http   *HttpClient
 }
 
-func (a *app) DeleteMessage(messageId, channelId string) (*http.Response, error) {
-	return a.http.DeleteMessage(messageId, channelId)
+func (c *Client) DeleteMessage(messageId, channelId string) (*http.Response, error) {
+	return c.Http.DeleteMessage(messageId, channelId)
 }
 
-func (a *app) Run() error {
-	a.Engine.POST(a.Path, func(c *gin.Context) { handler(c, a) })
+func (c *Client) Run() error {
+	c.Engine.POST(c.Path, func(ctx *gin.Context) { handler(ctx, c) })
 	var PORT = ":8080"
-	if a.Port != 0 {
-		PORT = fmt.Sprintf(":%d", a.Port)
+	if c.Port != 0 {
+		PORT = fmt.Sprintf(":%d", c.Port)
 	}
-	return a.Engine.Run(PORT)
+	return c.Engine.Run(PORT)
 }
 
-func (a *app) Sync() (*http.Response, error) {
-	return a.http.sync(a.commands)
+func (c *Client) Sync() (*http.Response, error) {
+	return c.Http.sync(c.commands)
 }
 
-func (a *app) AddCommands(commands ...ApplicationCommand) {
+func (c *Client) AddCommands(commands ...ApplicationCommand) {
 	for _, command := range commands {
 		globalHandlerMap[fmt.Sprintf("%s:%d", command.Name, command.Type)] = command.Handler
 	}
-	a.commands = append(a.commands, commands...)
+	c.commands = append(c.commands, commands...)
 }
 
-func (a *app) PreloadComponents(comps ...Component) {
+func (c *Client) PreloadComponents(comps ...Component) {
 	for _, comp := range comps {
 		if comp.CustomId == "" {
 			continue
@@ -58,11 +58,11 @@ func (a *app) PreloadComponents(comps ...Component) {
 	}
 }
 
-func (a *app) PreloadModal(m Modal) {
+func (c *Client) PreloadModal(m Modal) {
 	globalHandlerMap[m.CustomId] = m.Handler
 }
 
-func App(state *AppState) *app {
+func App(state *AppState) *Client {
 	gin.SetMode(state.ReleaseMode)
-	return &app{*state, gin.Default(), NewHttpClient(state)}
+	return &Client{*state, gin.Default(), &HttpClient{state}}
 }

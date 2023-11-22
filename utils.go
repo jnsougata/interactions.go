@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func ReaderFromAny(v any) io.Reader {
+func ReaderFromMap(v any) io.Reader {
 	b, _ := json.Marshal(v)
 	return bytes.NewReader(b)
 }

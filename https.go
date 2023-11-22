@@ -16,7 +16,7 @@ var DISCORD_API_BASE_URL = "https://discord.com/api/v" + DISCORD_API_VERSION
 
 var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
-func FormData(data any, files []PartialAttachment) ([]byte, string) {
+func MultipartForm(data any, files []PartialAttachment) ([]byte, string) {
 	var buff bytes.Buffer
 	writer := multipart.NewWriter(&buff)
 	payload, _ := json.Marshal(data)
@@ -74,7 +74,7 @@ func (c *HttpClient) sync(commands []ApplicationCommand) (*http.Response, error)
 			Method:    http.MethodPut,
 			Path:      fmt.Sprintf("/applications/%s/commands", c.state.ApplicationId),
 			Authorize: true,
-			Body:      ReaderFromAny(commands),
+			Body:      ReaderFromMap(commands),
 		})
 }
 
@@ -92,7 +92,7 @@ func (c *HttpClient) SendInteractionCallback(
 	payload MessageOptions,
 ) (*http.Response, error) {
 	f := map[string]interface{}{"type": int(kind), "data": payload}
-	data, boundary := FormData(f, payload.Attchments)
+	data, boundary := MultipartForm(f, payload.Attchments)
 	return c.Request(RequestOptions{
 		Method:    http.MethodPost,
 		Path:      fmt.Sprintf("/interactions/%s/%s/callback", interaction.Id, interaction.Token),
@@ -112,12 +112,12 @@ func (c *HttpClient) SendInteractionCallbackModal(
 		Method:    http.MethodPost,
 		Path:      fmt.Sprintf("/interactions/%s/%s/callback", interaction.Id, interaction.Token),
 		Authorize: false,
-		Body:      ReaderFromAny(payload),
+		Body:      ReaderFromMap(payload),
 	})
 }
 
 func (c *HttpClient) SendInteractionFollowup(interaction *Interaction, payload MessageOptions) (*http.Response, error) {
-	data, bounday := FormData(payload, payload.Attchments)
+	data, bounday := MultipartForm(payload, payload.Attchments)
 	return c.Request(RequestOptions{
 		Method:    http.MethodPost,
 		Path:      fmt.Sprintf("/webhooks/%s/%s", c.state.ApplicationId, interaction.Token),
@@ -136,7 +136,7 @@ func (c *HttpClient) GetOriginalInteractionResponse(interaction *Interaction) (*
 }
 
 func (c *HttpClient) EditOriginalInteractionResponse(interaction *Interaction, payload MessageOptions) (*http.Response, error) {
-	data, bounday := FormData(payload, payload.Attchments)
+	data, bounday := MultipartForm(payload, payload.Attchments)
 	return c.Request(RequestOptions{
 		Method:    http.MethodPatch,
 		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.state.ApplicationId, interaction.Token),
@@ -154,6 +154,28 @@ func (c *HttpClient) DeleteOriginalInteractionResponse(interaction *Interaction)
 	})
 }
 
-func NewHttpClient(state *AppState) *HttpClient {
-	return &HttpClient{state}
+func (c *HttpClient) CreateMessage(channelId string, payload MessageOptions) (*http.Response, error) {
+	data, bounday := MultipartForm(payload, payload.Attchments)
+	return c.Request(RequestOptions{
+		Method:    http.MethodPost,
+		Path:      fmt.Sprintf("/channels/%s/messages", channelId),
+		Authorize: true,
+		Body:      bytes.NewReader(data),
+		Boundary:  bounday,
+	})
+}
+
+func (c *HttpClient) CreateDM(userId string, msg MessageOptions) (*http.Response, error) {
+	payload := map[string]interface{}{"recipient_id": userId}
+	resp, _ := c.Request(RequestOptions{
+		Method:    http.MethodPost,
+		Path:      "/users/@me/channels",
+		Authorize: true,
+		Body:      ReaderFromMap(payload),
+	})
+	var channel struct {
+		Id string `json:"id"`
+	}
+	_ = json.NewDecoder(resp.Body).Decode(&channel)
+	return c.CreateMessage(channel.Id, msg)
 }

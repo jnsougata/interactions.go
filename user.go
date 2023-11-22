@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"strconv"
 )
 
@@ -10,7 +11,7 @@ type User struct {
 	Username         string `json:"username"`
 	Discriminator    string `json:"discriminator"`
 	GlobalName       string `json:"global_name"`
-	Avatar           string `json:"avatar"`
+	AvatarHash       string `json:"avatar"`
 	Bot              bool   `json:"bot"`
 	System           bool   `json:"system"`
 	MfaEnabled       bool   `json:"mfa_enabled"`
@@ -41,10 +42,10 @@ func (u *User) String() string {
 	}
 }
 
-func (u *User) AvatarAsset() *Asset {
-	if u.Avatar != "" {
+func (u *User) Avatar() *Asset {
+	if u.AvatarHash != "" {
 		return &Asset{
-			Hash:     u.Avatar,
+			Hash:     u.AvatarHash,
 			Fragment: fmt.Sprintf("avatars/%s", u.Id),
 		}
 	}
@@ -59,4 +60,8 @@ func (u *User) AvatarAsset() *Asset {
 		asset.Hash = strconv.Itoa(id % 5)
 	}
 	return asset
+}
+
+func (u *User) Send(c *Client, msg MessageOptions) (*http.Response, error) {
+	return c.Http.CreateDM(u.Id, msg)
 }

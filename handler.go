@@ -10,30 +10,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func handler(c *gin.Context, state *app) {
-	signatureHex := c.GetHeader("X-Signature-Ed25519")
-	timestamp := c.GetHeader("X-Signature-Timestamp")
+func handler(ctx *gin.Context, client *Client) {
+	signatureHex := ctx.GetHeader("X-Signature-Ed25519")
+	timestamp := ctx.GetHeader("X-Signature-Timestamp")
 	if signatureHex == "" || timestamp == "" {
-		c.JSON(401, gin.H{"message": "Unauthorized"})
+		ctx.JSON(401, gin.H{"message": "Unauthorized"})
 		return
 	}
-	body, _ := io.ReadAll(c.Request.Body)
+	body, _ := io.ReadAll(ctx.Request.Body)
 	message := []byte(timestamp)
 	message = append(message, body...)
 	signatureBytes, _ := hex.DecodeString(signatureHex)
-	publicKeyBytes, _ := hex.DecodeString(state.PublicKey)
+	publicKeyBytes, _ := hex.DecodeString(client.PublicKey)
 	ok := ed25519.Verify(publicKeyBytes, message, signatureBytes)
 	if !ok {
-		c.JSON(401, gin.H{"message": "Unauthorized"})
+		ctx.JSON(401, gin.H{"message": "Unauthorized"})
 		return
 	}
 	var interaction Interaction
-	interaction.App = state
-	interaction.Context = c
+	interaction.Client = client
+	interaction.Context = ctx
 	_ = json.Unmarshal(body, &interaction)
 	switch interaction.Type {
 	case InteractionTypePing:
-		c.JSON(200, gin.H{"type": 1})
+		ctx.JSON(200, gin.H{"type": 1})
 	case InteractionTypeApplicationCommand:
 		key := fmt.Sprintf("%s:%d", interaction.Data.Name, interaction.Data.Type)
 		globalHandlerMap[key](&interaction)
@@ -43,6 +43,6 @@ func handler(c *gin.Context, state *app) {
 	case InteractionTypeModalSubmit:
 		globalHandlerMap[interaction.Data.CustomId](&interaction)
 	default:
-		c.JSON(200, gin.H{"type": 1})
+		// TODO: handle unknown interaction type
 	}
 }

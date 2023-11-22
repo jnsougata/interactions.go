@@ -30,7 +30,7 @@ type InteractionData struct {
 }
 
 type Interaction struct {
-	App            *app
+	Client         *Client
 	Context        *gin.Context
 	Id             string          `json:"id"`
 	ApplicationId  string          `json:"application_id"`
@@ -132,11 +132,11 @@ func (i *Interaction) Bind(v any) {
 }
 
 func (i *Interaction) Response(message MessageOptions) {
-	i.App.http.SendInteractionCallback(i, InteractionCallbackTypeChannelMessageWithSource, message)
+	i.Client.Http.SendInteractionCallback(i, InteractionCallbackTypeChannelMessageWithSource, message)
 }
 
 func (i *Interaction) FollowUp(message MessageOptions) Message {
-	resp, _ := i.App.http.SendInteractionFollowup(i, message)
+	resp, _ := i.Client.Http.SendInteractionFollowup(i, message)
 	var msg Message
 	_ = json.NewDecoder(resp.Body).Decode(&msg)
 	return msg
@@ -154,28 +154,28 @@ func (i *Interaction) Defer(ephemral ...bool) {
 		kind = InteractionCallbackTypeDeferredUpdateMessage
 	}
 
-	i.App.http.SendInteractionCallback(i, kind, payload)
+	i.Client.Http.SendInteractionCallback(i, kind, payload)
 }
 
 func (i *Interaction) GetOriginalResponse() Message {
-	resp, _ := i.App.http.GetOriginalInteractionResponse(i)
+	resp, _ := i.Client.Http.GetOriginalInteractionResponse(i)
 	var msg Message
 	_ = json.NewDecoder(resp.Body).Decode(&msg)
 	return msg
 }
 
 func (i *Interaction) EditOriginalResponse(message MessageOptions) {
-	i.App.http.EditOriginalInteractionResponse(i, message)
+	i.Client.Http.EditOriginalInteractionResponse(i, message)
 }
 
 func (i *Interaction) DeleteOriginalResponse() {
-	i.App.http.DeleteOriginalInteractionResponse(i)
+	i.Client.Http.DeleteOriginalInteractionResponse(i)
 }
 
 func (i *Interaction) EditComponentMessage(message MessageOptions) {
-	i.App.http.SendInteractionCallback(i, InteractionCallbackTypeUpdateMessage, message)
+	i.Client.Http.SendInteractionCallback(i, InteractionCallbackTypeUpdateMessage, message)
 }
 
 func (i *Interaction) SendModal(modal Modal) {
-	i.App.http.SendInteractionCallbackModal(i, InteractionCallbackTypeModal, modal)
+	i.Client.Http.SendInteractionCallbackModal(i, InteractionCallbackTypeModal, modal)
 }
