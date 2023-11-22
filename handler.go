@@ -22,26 +22,24 @@ func handler(ctx *gin.Context, client *Client) {
 	message = append(message, body...)
 	signatureBytes, _ := hex.DecodeString(signatureHex)
 	publicKeyBytes, _ := hex.DecodeString(client.PublicKey)
-	ok := ed25519.Verify(publicKeyBytes, message, signatureBytes)
-	if !ok {
+	if !ed25519.Verify(publicKeyBytes, message, signatureBytes) {
 		ctx.JSON(401, gin.H{"message": "Unauthorized"})
 		return
 	}
 	var interaction Interaction
 	interaction.Client = client
-	interaction.Context = ctx
 	_ = json.Unmarshal(body, &interaction)
 	switch interaction.Type {
 	case InteractionTypePing:
 		ctx.JSON(200, gin.H{"type": 1})
 	case InteractionTypeApplicationCommand:
 		key := fmt.Sprintf("%s:%d", interaction.Data.Name, interaction.Data.Type)
-		globalHandlerMap[key](&interaction)
+		client.handlers[key](&interaction)
 	case InteractionTypeMessageComponent:
 		key := fmt.Sprintf("%s:%d", interaction.Data.CustomId, interaction.Data.ComponentType)
-		globalHandlerMap[key](&interaction)
+		client.handlers[key](&interaction)
 	case InteractionTypeModalSubmit:
-		globalHandlerMap[interaction.Data.CustomId](&interaction)
+		client.handlers[interaction.Data.CustomId](&interaction)
 	default:
 		// TODO: handle unknown interaction type
 	}

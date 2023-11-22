@@ -43,7 +43,7 @@ type RequestOptions struct {
 }
 
 type HttpClient struct {
-	state *AppState
+	config *Config
 }
 
 func (c *HttpClient) Request(o RequestOptions) (*http.Response, error) {
@@ -58,7 +58,7 @@ func (c *HttpClient) Request(o RequestOptions) (*http.Response, error) {
 		req.Header.Set("Content-Type", "application/json")
 	}
 	if o.Authorize {
-		req.Header.Set("Authorization", "Bot "+c.state.DiscordToken)
+		req.Header.Set("Authorization", "Bot "+c.config.DiscordToken)
 	}
 	if o.Kwargs != nil {
 		if reason, ok := o.Kwargs["reason"]; ok {
@@ -72,7 +72,7 @@ func (c *HttpClient) sync(commands []ApplicationCommand) (*http.Response, error)
 	return c.Request(
 		RequestOptions{
 			Method:    http.MethodPut,
-			Path:      fmt.Sprintf("/applications/%s/commands", c.state.ApplicationId),
+			Path:      fmt.Sprintf("/applications/%s/commands", c.config.ApplicationId),
 			Authorize: true,
 			Body:      ReaderFromMap(commands),
 		})
@@ -120,7 +120,7 @@ func (c *HttpClient) SendInteractionFollowup(interaction *Interaction, payload M
 	data, bounday := MultipartForm(payload, payload.Attchments)
 	return c.Request(RequestOptions{
 		Method:    http.MethodPost,
-		Path:      fmt.Sprintf("/webhooks/%s/%s", c.state.ApplicationId, interaction.Token),
+		Path:      fmt.Sprintf("/webhooks/%s/%s", c.config.ApplicationId, interaction.Token),
 		Authorize: false,
 		Body:      bytes.NewReader(data),
 		Boundary:  bounday,
@@ -130,7 +130,7 @@ func (c *HttpClient) SendInteractionFollowup(interaction *Interaction, payload M
 func (c *HttpClient) GetOriginalInteractionResponse(interaction *Interaction) (*http.Response, error) {
 	return c.Request(RequestOptions{
 		Method:    http.MethodGet,
-		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.state.ApplicationId, interaction.Token),
+		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.config.ApplicationId, interaction.Token),
 		Authorize: false,
 	})
 }
@@ -139,7 +139,7 @@ func (c *HttpClient) EditOriginalInteractionResponse(interaction *Interaction, p
 	data, bounday := MultipartForm(payload, payload.Attchments)
 	return c.Request(RequestOptions{
 		Method:    http.MethodPatch,
-		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.state.ApplicationId, interaction.Token),
+		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.config.ApplicationId, interaction.Token),
 		Authorize: false,
 		Body:      bytes.NewReader(data),
 		Boundary:  bounday,
@@ -149,7 +149,7 @@ func (c *HttpClient) EditOriginalInteractionResponse(interaction *Interaction, p
 func (c *HttpClient) DeleteOriginalInteractionResponse(interaction *Interaction) (*http.Response, error) {
 	return c.Request(RequestOptions{
 		Method:    http.MethodDelete,
-		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.state.ApplicationId, interaction.Token),
+		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.config.ApplicationId, interaction.Token),
 		Authorize: false,
 	})
 }

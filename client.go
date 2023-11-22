@@ -7,22 +7,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var globalHandlerMap = make(map[string]func(interaction *Interaction))
-
-type AppState struct {
+type Config struct {
 	Port          int
 	Path          string
 	DiscordToken  string
 	PublicKey     string
 	ApplicationId string
 	ReleaseMode   string
-	commands      []ApplicationCommand
 }
 
 type Client struct {
-	AppState
-	Engine *gin.Engine
-	Http   *HttpClient
+	Config
+	Engine   *gin.Engine
+	Http     *HttpClient
+	commands []ApplicationCommand
+	handlers map[string]func(interaction *Interaction)
 }
 
 func (c *Client) Run() error {
@@ -40,25 +39,31 @@ func (c *Client) Sync() (*http.Response, error) {
 
 func (c *Client) AddCommands(commands ...ApplicationCommand) {
 	for _, command := range commands {
-		globalHandlerMap[fmt.Sprintf("%s:%d", command.Name, command.Type)] = command.Handler
+		c.handlers[fmt.Sprintf("%s:%d", command.Name, command.Type)] = command.Handler
 	}
 	c.commands = append(c.commands, commands...)
 }
 
-func (c *Client) PreloadComponents(comps ...Component) {
+func (c *Client) Preload(comps ...Component) {
 	for _, comp := range comps {
 		if comp.CustomId == "" {
 			continue
 		}
-		globalHandlerMap[fmt.Sprintf("%s:%d", comp.CustomId, comp.Type)] = comp.Handler
+		c.handlers[fmt.Sprintf("%s:%d", comp.CustomId, comp.Type)] = comp.Handler
 	}
 }
 
 func (c *Client) PreloadModal(m Modal) {
-	globalHandlerMap[m.CustomId] = m.Handler
+	c.handlers[m.CustomId] = m.Handler
 }
 
-func App(state *AppState) *Client {
-	gin.SetMode(state.ReleaseMode)
-	return &Client{*state, gin.Default(), &HttpClient{state}}
+func App(config *Config) *Client {
+	gin.SetMode(config.ReleaseMode)
+	return &Client{
+		*config,
+		gin.Default(),
+		&HttpClient{config},
+		[]ApplicationCommand{},
+		map[string]func(interaction *Interaction){},
+	}
 }

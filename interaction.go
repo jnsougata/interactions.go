@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-
-	"github.com/gin-gonic/gin"
 )
 
 type InteractionDataResolved struct {
@@ -31,7 +29,6 @@ type InteractionData struct {
 
 type Interaction struct {
 	Client         *Client
-	Context        *gin.Context
 	Id             string          `json:"id"`
 	ApplicationId  string          `json:"application_id"`
 	Type           InteractionType `json:"type"`

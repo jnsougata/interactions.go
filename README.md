@@ -25,7 +25,7 @@ func main() {
 			ApplicationId: "...",
 			ReleaseMode:   gin.ReleaseMode,
 		})
-	app.PreloadComponents(deleteButton)
+	app.Preload(deleteButton)
 	app.AddCommands(echo)
 	if os.Getenv("ENV") == "DEVEL" {
 		app.Sync()
