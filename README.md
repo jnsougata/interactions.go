@@ -1,5 +1,5 @@
 # interactions.go
-Discord HTTP Interaction Handler for Serverless Applications
+Discord HTTP Interaction API Wrapper for Serverless Applications
 
 ## Work In Progress
 
