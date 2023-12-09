@@ -153,35 +153,35 @@ func AttachmentOption(conf OptionConfigBasic) Option {
 }
 
 type ApplicationCommand struct {
-	Name        string                         `json:"name"`
-	Type        ApplicationCommandType         `json:"type"`
-	Description string                         `json:"description,omitempty"`
-	Options     []Option                       `json:"options,omitempty"`
-	Handler     func(interaction *Interaction) `json:"-"`
+	Name        string                               `json:"name"`
+	Type        ApplicationCommandType               `json:"type"`
+	Description string                               `json:"description,omitempty"`
+	Options     []Option                             `json:"options,omitempty"`
+	Handler     func(interaction *Interaction) error `json:"-"`
 }
 
 type UserCommandConfig struct {
-	Name   string
-	Hander func(interaction *Interaction)
+	Name    string
+	Handler func(interaction *Interaction) error
 }
 
 type MessageCommandConfig struct {
-	Name   string
-	Hander func(interaction *Interaction)
+	Name    string
+	Handler func(interaction *Interaction) error
 }
 
 type SlashCommandConfig struct {
 	Name        string
 	Description string
 	Options     []Option
-	Handler     func(interaction *Interaction)
+	Handler     func(interaction *Interaction) error
 }
 
 func UserCommand(conf UserCommandConfig) ApplicationCommand {
 	return ApplicationCommand{
 		Name:    conf.Name,
 		Type:    ApplicationCommandTypeUser,
-		Handler: conf.Hander,
+		Handler: conf.Handler,
 	}
 }
 
@@ -189,7 +189,7 @@ func MessageCommand(conf MessageCommandConfig) ApplicationCommand {
 	return ApplicationCommand{
 		Name:    conf.Name,
 		Type:    ApplicationCommandTypeMessage,
-		Handler: conf.Hander,
+		Handler: conf.Handler,
 	}
 }
 

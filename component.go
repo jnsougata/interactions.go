@@ -43,19 +43,21 @@ type Component struct {
 		Id       string `json:"id,omitempty"`
 		Animated bool   `json:"animated,omitempty"`
 	} `json:"emoji,omitempty"`
-	URL           string                         `json:"url,omitempty"`
-	Options       []SelectOption                 `json:"options,omitempty"`
-	ChannelTypes  []ChannelType                  `json:"channel_types,omitempty"`
-	Placeholder   string                         `json:"placeholder,omitempty"`
-	DefaultValues []DefaultValue                 `json:"default_values,omitempty"`
-	MinValues     int                            `json:"min_values,omitempty"`
-	MaxValues     int                            `json:"max_values,omitempty"`
-	Disabled      bool                           `json:"disabled,omitempty"`
-	MinLength     int                            `json:"min_length,omitempty"`
-	MaxLength     int                            `json:"max_length,omitempty"`
-	Required      bool                           `json:"required,omitempty"`
-	Value         string                         `json:"value,omitempty"`
-	Handler       func(interaction *Interaction) `json:"-"`
+	URL           string                               `json:"url,omitempty"`
+	Options       []SelectOption                       `json:"options,omitempty"`
+	ChannelTypes  []ChannelType                        `json:"channel_types,omitempty"`
+	Placeholder   string                               `json:"placeholder,omitempty"`
+	DefaultValues []DefaultValue                       `json:"default_values,omitempty"`
+	MinValues     int                                  `json:"min_values,omitempty"`
+	MaxValues     int                                  `json:"max_values,omitempty"`
+	Disabled      bool                                 `json:"disabled,omitempty"`
+	Title         string                               `json:"title"`
+	Fields        []ActionRow                          `json:"components"`
+	MinLength     int                                  `json:"min_length,omitempty"`
+	MaxLength     int                                  `json:"max_length,omitempty"`
+	Required      bool                                 `json:"required,omitempty"`
+	Value         string                               `json:"value,omitempty"`
+	Handler       func(interaction *Interaction) error `json:"-"`
 }
 
 type ButtonConfig struct {
@@ -69,7 +71,7 @@ type ButtonConfig struct {
 	CustomId string
 	URL      string
 	Disabled bool
-	Handler  func(interaction *Interaction)
+	Handler  func(interaction *Interaction) error
 }
 
 func Button(config ButtonConfig) Component {
@@ -95,7 +97,7 @@ type SelectConfig struct {
 	MinValues     int
 	MaxValues     int
 	Disabled      bool
-	Handler       func(interaction *Interaction)
+	Handler       func(interaction *Interaction) error
 }
 
 func Select(config SelectConfig) Component {

@@ -10,6 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func handleError(err error, client *Client, interaction *Interaction) {
+	if err != nil && client.OnInteractionError != nil {
+		client.OnInteractionError(interaction, err)
+	}
+}
+
 func handler(ctx *gin.Context, client *Client) {
 	signatureHex := ctx.GetHeader("X-Signature-Ed25519")
 	timestamp := ctx.GetHeader("X-Signature-Timestamp")
@@ -34,12 +40,11 @@ func handler(ctx *gin.Context, client *Client) {
 		ctx.JSON(200, gin.H{"type": 1})
 	case InteractionTypeApplicationCommand:
 		key := fmt.Sprintf("%s:%d", interaction.Data.Name, interaction.Data.Type)
-		client.handlers[key](&interaction)
+		handleError(client.handlers[key](&interaction), client, &interaction)
 	case InteractionTypeMessageComponent:
-		key := fmt.Sprintf("%s:%d", interaction.Data.CustomId, interaction.Data.ComponentType)
-		client.handlers[key](&interaction)
+		handleError(client.handlers[interaction.Data.CustomId](&interaction), client, &interaction)
 	case InteractionTypeModalSubmit:
-		client.handlers[interaction.Data.CustomId](&interaction)
+		handleError(client.handlers[interaction.Data.CustomId](&interaction), client, &interaction)
 	default:
 		// TODO: handle unknown interaction type
 	}

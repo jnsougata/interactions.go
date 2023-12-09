@@ -128,8 +128,9 @@ func (i *Interaction) Bind(v any) {
 	}
 }
 
-func (i *Interaction) Response(message MessageOptions) {
-	i.Client.Http.SendInteractionCallback(i, InteractionCallbackTypeChannelMessageWithSource, message)
+func (i *Interaction) Response(message MessageOptions) error {
+	_, err := i.Client.Http.SendInteractionCallback(i, InteractionCallbackTypeChannelMessageWithSource, message)
+	return err
 }
 
 func (i *Interaction) FollowUp(message MessageOptions) Message {
@@ -139,7 +140,7 @@ func (i *Interaction) FollowUp(message MessageOptions) Message {
 	return msg
 }
 
-func (i *Interaction) Defer(ephemral ...bool) {
+func (i *Interaction) Defer(ephemral ...bool) error {
 	var payload MessageOptions
 	var kind InteractionCallbackType
 	if i.Type == InteractionTypeApplicationCommand {
@@ -151,7 +152,8 @@ func (i *Interaction) Defer(ephemral ...bool) {
 		kind = InteractionCallbackTypeDeferredUpdateMessage
 	}
 
-	i.Client.Http.SendInteractionCallback(i, kind, payload)
+	_, err := i.Client.Http.SendInteractionCallback(i, kind, payload)
+	return err
 }
 
 func (i *Interaction) GetOriginalResponse() Message {
@@ -173,6 +175,7 @@ func (i *Interaction) EditComponentMessage(message MessageOptions) {
 	i.Client.Http.SendInteractionCallback(i, InteractionCallbackTypeUpdateMessage, message)
 }
 
-func (i *Interaction) SendModal(modal Modal) {
-	i.Client.Http.SendInteractionCallbackModal(i, InteractionCallbackTypeModal, modal)
+func (i *Interaction) SendModal(modal Component) error {
+	_, err := i.Client.Http.SendInteractionCallbackModal(i, InteractionCallbackTypeModal, modal)
+	return err
 }

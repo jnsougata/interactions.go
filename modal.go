@@ -27,11 +27,21 @@ func TextInput(o TextInputOptions) Component {
 	}
 }
 
-type Modal struct {
-	Title    string                         `json:"title"`
-	CustomId string                         `json:"custom_id"`
-	Fields   []ActionRow                    `json:"components"`
-	Handler  func(interaction *Interaction) `json:"-"`
+type ModalConfig struct {
+	Title    string                               `json:"title"`
+	CustomId string                               `json:"custom_id"`
+	Fields   []ActionRow                          `json:"components"`
+	Handler  func(interaction *Interaction) error `json:"-"`
+}
+
+func Modal(config ModalConfig) Component {
+	return Component{
+		Type:     ComponentTypeActionRow,
+		Title:    config.Title,
+		CustomId: config.CustomId,
+		Fields:   config.Fields,
+		Handler:  config.Handler,
+	}
 }
 
 func ModalFields(fields ...TextInputOptions) []ActionRow {

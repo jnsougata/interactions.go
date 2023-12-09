@@ -105,7 +105,7 @@ func (c *HttpClient) SendInteractionCallback(
 func (c *HttpClient) SendInteractionCallbackModal(
 	interaction *Interaction,
 	kind InteractionCallbackType,
-	modal Modal,
+	modal Component,
 ) (*http.Response, error) {
 	payload := map[string]interface{}{"type": int(kind), "data": modal}
 	return c.Request(RequestOptions{

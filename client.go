@@ -8,12 +8,13 @@ import (
 )
 
 type Config struct {
-	Port          int
-	Path          string
-	DiscordToken  string
-	PublicKey     string
-	ApplicationId string
-	ReleaseMode   string
+	Port               int
+	Path               string
+	DiscordToken       string
+	PublicKey          string
+	ApplicationId      string
+	ReleaseMode        string
+	OnInteractionError func(i *Interaction, err error)
 }
 
 type Client struct {
@@ -21,7 +22,7 @@ type Client struct {
 	Engine   *gin.Engine
 	Http     *HttpClient
 	commands []ApplicationCommand
-	handlers map[string]func(interaction *Interaction)
+	handlers map[string]func(interaction *Interaction) error
 }
 
 func (c *Client) Run() error {
@@ -49,12 +50,8 @@ func (c *Client) Preload(comps ...Component) {
 		if comp.CustomId == "" {
 			continue
 		}
-		c.handlers[fmt.Sprintf("%s:%d", comp.CustomId, comp.Type)] = comp.Handler
+		c.handlers[comp.CustomId] = comp.Handler
 	}
-}
-
-func (c *Client) PreloadModal(m Modal) {
-	c.handlers[m.CustomId] = m.Handler
 }
 
 func App(config *Config) *Client {
@@ -64,6 +61,6 @@ func App(config *Config) *Client {
 		gin.Default(),
 		&HttpClient{config},
 		[]ApplicationCommand{},
-		map[string]func(interaction *Interaction){},
+		map[string]func(interaction *Interaction) error{},
 	}
 }
