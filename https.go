@@ -136,13 +136,13 @@ func (c *HttpClient) GetOriginalInteractionResponse(interaction *Interaction) (*
 }
 
 func (c *HttpClient) EditOriginalInteractionResponse(interaction *Interaction, payload MessageOptions) (*http.Response, error) {
-	data, bounday := MultipartForm(payload, payload.Attchments)
+	data, boundary := MultipartForm(payload, payload.Attchments)
 	return c.Request(RequestOptions{
 		Method:    http.MethodPatch,
 		Path:      fmt.Sprintf("/webhooks/%s/%s/messages/@original", c.config.ApplicationId, interaction.Token),
 		Authorize: false,
 		Body:      bytes.NewReader(data),
-		Boundary:  bounday,
+		Boundary:  boundary,
 	})
 }
 
@@ -155,13 +155,13 @@ func (c *HttpClient) DeleteOriginalInteractionResponse(interaction *Interaction)
 }
 
 func (c *HttpClient) CreateMessage(channelId string, payload MessageOptions) (*http.Response, error) {
-	data, bounday := MultipartForm(payload, payload.Attchments)
+	data, boundary := MultipartForm(payload, payload.Attchments)
 	return c.Request(RequestOptions{
 		Method:    http.MethodPost,
 		Path:      fmt.Sprintf("/channels/%s/messages", channelId),
 		Authorize: true,
 		Body:      bytes.NewReader(data),
-		Boundary:  bounday,
+		Boundary:  boundary,
 	})
 }
 
